@@ -7,17 +7,17 @@ project(espeak-ng
 )
 
 option(BUILD_ESPEAK_NG_EXE "Whether to build espeak-ng-bin" ON)
-option(BUILD_ESPEAK_NG_TESTS "Whether to build tests" ON)
-
-include(CTest)
+option(BUILD_ESPEAK_NG_TESTS "Whether to build tests" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 include(cmake/deps.cmake)
 include(cmake/config.cmake)
-add_subdirectory(src)
 if(BUILD_ESPEAK_NG_EXE)
   include(cmake/data.cmake)
 endif()
 include(cmake/docs.cmake)
+
+add_subdirectory(src)
 
 include(cmake/package.cmake)
 include(CPack)
@@ -27,8 +27,6 @@ if(BUILD_ESPEAK_NG_TESTS)
   add_subdirectory(tests)
 endif()
 
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-
 message(STATUS "Configuration:")
 message(STATUS "  shared: ${BUILD_SHARED_LIBS}")
 message(STATUS "  mbrola: ${USE_MBROLA} (${MBROLA_BIN})")
@@ -37,7 +35,10 @@ message(STATUS "  libpcaudio: ${USE_LIBPCAUDIO} (${PCAUDIO_LIB} ${PCAUDIO_INC})"
 message(STATUS "  klatt: ${USE_KLATT}")
 message(STATUS "  speech-player: ${USE_SPEECHPLAYER}")
 message(STATUS "  async: ${USE_ASYNC}")
+message(STATUS "  output data dir: ${DATA_DIR_ROOT}")
 
 install(
-  DIRECTORY vim/ftdetect vim/syntax DESTINATION share/vim/vimfiles
+  DIRECTORY vim/ftdetect
+            vim/syntax
+  DESTINATION share/vim/vimfiles
 )

@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 list(APPEND _dict_compile_list
   af am an ar as az
   ba be bg bn bpy bs
@@ -49,7 +51,6 @@ set(DATA_DIST_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 set(DATA_DIST_DIR ${DATA_DIST_ROOT}/espeak-ng-data)
 set(PHONEME_TMP_DIR ${DATA_DIST_ROOT}/phsource)
 set(DICT_TMP_DIR ${DATA_DIST_ROOT}/dictsource)
-
 set(DATA_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/espeak-ng-data)
 set(PHONEME_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/phsource)
 set(DICT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dictsource)
@@ -166,4 +167,15 @@ add_custom_target(
     ${_dict_targets}
     ${_mbr_targets}
 )
-install(DIRECTORY ${DATA_DIST_DIR} DESTINATION share)
+
+if(NOT DEFINED DATA_DIR_NAME)
+  set(DATA_DIR_NAME espeak-ng-data)
+endif()
+if(NOT DEFINED DATA_DIR_ROOT)
+  set(DATA_DIR_ROOT ${CMAKE_INSTALL_DATAROOTDIR})
+endif()
+
+install(
+  DIRECTORY ${DATA_DIST_DIR}/
+  DESTINATION ${DATA_DIR_ROOT}/${DATA_DIR_NAME}
+)
