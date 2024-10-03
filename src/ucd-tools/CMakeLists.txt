@@ -1,4 +1,4 @@
-add_library(ucd STATIC
+add_library(ucd
   src/case.c
   src/categories.c
   src/ctype.c
@@ -10,3 +10,5 @@ add_library(ucd STATIC
 set_property(TARGET ucd PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(ucd PUBLIC src/include)
+
+install(TARGETS ucd)
