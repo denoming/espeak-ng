@@ -1,49 +1,49 @@
-set(ESPEAK_CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
-set(ESPEAK_CONFIG_H ${ESPEAK_CONFIG_DIR}/config.h)
-configure_file(config.h.in ${ESPEAK_CONFIG_H})
+include(GNUInstallDirs)
 
-add_library(espeak-ng-config INTERFACE)
-target_include_directories(espeak-ng-config INTERFACE ${ESPEAK_CONFIG_DIR})
+add_library(espeak-ng)
+add_library(eSpeakNg::eSpeakNg ALIAS espeak-ng)
 
-add_library(espeak-ng
-  common.c
-  mnemonics.c
-  error.c
-  ieee80.c
-
-  compiledata.c
-  compiledict.c
-
-  dictionary.c
-  encoding.c
-  intonation.c
-  langopts.c
-  numbers.c
-  phoneme.c
-  phonemelist.c
-  readclause.c
-  setlengths.c
-  soundicon.c
-  spect.c
-  ssml.c
-  synthdata.c
-  synthesize.c
-  tr_languages.c
-  translate.c
-  translateword.c
-  voices.c
-  wavegen.c
-  speech.c
-
-  espeak_api.c
-)
-set_target_properties(
-  espeak-ng PROPERTIES
-  MACOSX_RPATH ON
-  INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib"
+set_target_properties(espeak-ng
+  PROPERTIES EXPORT_NAME eSpeakNg
+             MACOSX_RPATH ON
+             INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib"
 )
 
-target_include_directories(espeak-ng BEFORE PRIVATE $<TARGET_PROPERTY:espeak-include,INTERFACE_INCLUDE_DIRECTORIES>)
+target_sources(espeak-ng
+  PRIVATE common.c
+          mnemonics.c
+          error.c
+          ieee80.c
+          compiledata.c
+          compiledict.c
+          dictionary.c
+          encoding.c
+          intonation.c
+          langopts.c
+          numbers.c
+          phoneme.c
+          phonemelist.c
+          readclause.c
+          setlengths.c
+          soundicon.c
+          spect.c
+          ssml.c
+          synthdata.c
+          synthesize.c
+          tr_languages.c
+          translate.c
+          translateword.c
+          voices.c
+          wavegen.c
+          speech.c
+          espeak_api.c
+)
+
+target_link_libraries(espeak-ng
+  PUBLIC espeak-ng-include
+  PRIVATE ucd
+          espeak-ng-config
+)
 
 if (NOT MSVC)
   target_compile_options(espeak-ng PRIVATE
@@ -51,9 +51,7 @@ if (NOT MSVC)
     "-fvisibility=hidden"
     "-fno-exceptions"
     "-fwrapv"
-
     "-pedantic"
-
     "-Wunused-parameter"
     "-Wunused"
     "-Wuninitialized"
@@ -64,12 +62,15 @@ if (NOT MSVC)
     "-Wmisleading-indentation"
   )
 endif()
+
 target_compile_definitions(espeak-ng PRIVATE "LIBESPEAK_NG_EXPORT=1")
 if (NOT BUILD_SHARED_LIBS)
   target_compile_definitions(espeak-ng INTERFACE "LIBESPEAK_NG_EXPORT=1")
 endif()
 
-target_compile_definitions(espeak-ng PRIVATE "PATH_ESPEAK_DATA=\"${CMAKE_INSTALL_PREFIX}/share/espeak-ng-data\"")
+target_compile_definitions(espeak-ng
+  PRIVATE "PATH_ESPEAK_DATA=\"${CMAKE_INSTALL_PREFIX}/share/espeak-ng-data\""
+)
 
 if (USE_ASYNC)
   target_sources(espeak-ng PRIVATE
@@ -106,14 +107,29 @@ if (HAVE_LIBPCAUDIO AND USE_LIBPCAUDIO)
   target_include_directories(espeak-ng PRIVATE ${PCAUDIO_INC})
 endif()
 
-target_link_libraries(espeak-ng PRIVATE espeak-ng-config ucd)
 if (NOT MSVC)
   target_link_libraries(espeak-ng PRIVATE m)
 endif()
-target_link_libraries(espeak-ng PUBLIC espeak-include)
-
 if (MINGW)
   target_link_options(espeak-ng PRIVATE "-static-libstdc++" "-static")
 endif()
 
-install(TARGETS espeak-ng)
+install(TARGETS espeak-ng
+  EXPORT eSpeakNg
+  LIBRARY
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT eSpeakNgRuntime
+    NAMELINK_COMPONENT eSpeakNgDevelopment
+  ARCHIVE
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT eSpeakNgDevelopment
+  INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT eSpeakNg
+  FILE eSpeakNgConfig.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/eSpeakNg
+  NAMESPACE eSpeakNg::
+  COMPONENT eSpeakNgDevelopment
+)

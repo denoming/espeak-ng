@@ -1,14 +1,27 @@
-add_library(ucd
-  src/case.c
-  src/categories.c
-  src/ctype.c
-  src/proplist.c
-  src/scripts.c
-  src/tostring.c
+include(GNUInstallDirs)
+
+add_library(ucd)
+add_library(eSpeakNg::Ucd ALIAS ucd)
+
+set_target_properties(ucd
+  PROPERTIES EXPORT_NAME Ucd
+             POSITION_INDEPENDENT_CODE ON
 )
-# enable PIC in order to embed libucd.a in a .so
-set_property(TARGET ucd PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_include_directories(ucd PUBLIC src/include)
+target_include_directories(ucd
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/include>
+)
 
-install(TARGETS ucd)
+target_sources(ucd
+  PRIVATE src/case.c
+          src/categories.c
+          src/ctype.c
+          src/proplist.c
+          src/scripts.c
+          src/tostring.c
+)
+
+install(TARGETS ucd
+  EXPORT eSpeakNg
+  COMPONENT eSpeakNgRuntime
+)

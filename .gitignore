@@ -58,7 +58,6 @@ Makefile.in
 aclocal.m4
 autom4te.cache/
 compile
-config.*
 configure
 depcomp
 install-sh
@@ -160,7 +159,6 @@ src/pcaudiolib/
 *.cache
 *.user
 
-*.txt
 *.wixobj
 *.wixpdb
 *.cab
